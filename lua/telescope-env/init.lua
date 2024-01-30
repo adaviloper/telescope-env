@@ -1,4 +1,4 @@
-local pickers = require('telescope.pickers')
+
 local finders = require('telescope.finders')
 local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
@@ -49,7 +49,6 @@ function M.env_values(opts)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
-        vim.api.nvim_put({ selection['ordinal'] }, "", false, true)
         vim.cmd('find +/' .. selection.ordinal .. '= .env')
       end)
       return true
