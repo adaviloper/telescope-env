@@ -50,7 +50,7 @@ function M.env_values(opts)
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
         vim.api.nvim_put({ selection['ordinal'] }, "", false, true)
-        vim.cmd('find +/' .. selection.ordinal .. ' .env')
+        vim.cmd('find +/' .. selection.ordinal .. '= .env')
       end)
       return true
     end,
