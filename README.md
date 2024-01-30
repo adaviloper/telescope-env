@@ -8,7 +8,7 @@ Search through your projects `.env` values and quickly navigate to them.
 Lazy
 ```lua
 return {
-  dir = 'adaviloper/telescope-env',
+  'adaviloper/telescope-env',
   config = function ()
     require('telescope-env')
     require('telescope').load_extension('telescope-env')
