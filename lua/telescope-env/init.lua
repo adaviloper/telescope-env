@@ -12,10 +12,10 @@ local function file_exists(file)
 end
 
 local function lines_from(file)
-  if not file_exists(file) then return {} end
+  if not file_exists(file) then return nil end
   local lines = {}
   for line in io.lines(file) do
-    if line ~= '' then
+    if line ~= '' and string.sub(line, 1, 1) ~= '#' then
       lines[#lines + 1] = line
     end
   end
@@ -28,6 +28,10 @@ function M.env_values(opts)
   local cwd = vim.fn.getcwd(0)
   local env_file = cwd .. '/.env'
   local lines = lines_from(env_file)
+  if lines == nil then
+    vim.notify('.env file not found', 3)
+    return
+  end
 
   opts = opts or {}
   pickers.new(opts, {
@@ -36,16 +40,32 @@ function M.env_values(opts)
     finder = finders.new_table({
       results = lines,
       entry_maker = function(entry)
-        local variable = string.match(entry, '([A-Z0-9_]*)=.*')
+        local key = string.match(entry, '([A-Z0-9_]*)=.*')
+        local value = string.match(entry, '[A-Z0-9_]*=(.*)')
         return {
-          value = entry,
-          display = variable,
-          ordinal = variable
+          value = value,
+          display = key,
+          ordinal = key,
         }
       end,
     }),
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
+      map('i', '<C-k>', function ()
+        actions.close(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        vim.fn.setreg('+', selection.ordinal)
+      end)
+      map('i', '<C-v>', function ()
+        actions.close(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        vim.fn.setreg('+', selection.value)
+      end)
+      map('i', '<C-n>', function ()
+        actions.close(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        vim.notify(selection.value)
+      end)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
